@@ -21,59 +21,6 @@
         </div>
       </div>
 
-      <!-- Template Selection -->
-      <div class="card p-4">
-        <div class="mb-3 flex items-center justify-between">
-          <h3 class="text-sm font-medium text-gray-700 dark:text-dark-200">
-            {{ t('imageGen.templates') }}
-          </h3>
-          <div class="flex gap-2 flex-wrap">
-            <button
-              v-for="cat in categories"
-              :key="cat"
-              @click="selectedCategory = cat"
-              :class="[
-                'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                selectedCategory === cat
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-dark-700 dark:text-dark-300 dark:hover:bg-dark-600'
-              ]"
-            >
-              {{ getCategoryName(cat) }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Template Grid -->
-        <div class="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
-          <div
-            v-for="template in filteredTemplates"
-            :key="template.id"
-            @click="selectTemplate(template)"
-            :class="[
-              'group cursor-pointer rounded-lg border-2 p-1 transition-all',
-              selectedTemplate?.id === template.id
-                ? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20'
-                : 'border-transparent bg-gray-50 hover:border-primary-200 hover:bg-gray-100 dark:bg-dark-700 dark:hover:border-primary-700 dark:hover:bg-dark-600'
-            ]"
-          >
-            <div class="aspect-square overflow-hidden rounded-md bg-gray-200 dark:bg-dark-800">
-              <img
-                :src="template.previewUrl"
-                :alt="locale === 'zh' ? template.nameZh : template.name"
-                class="h-full w-full object-cover transition-transform group-hover:scale-110"
-                loading="lazy"
-              />
-            </div>
-            <div class="mt-1 text-center">
-              <span class="text-xs text-gray-600 dark:text-dark-300 line-clamp-1">
-                {{ locale === 'zh' ? template.nameZh : template.name }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Generation Form -->
       <div class="card p-6 space-y-4">
         <!-- Selected Template Preview -->
@@ -213,6 +160,78 @@
         </button>
       </div>
 
+      <!-- Template Selection (Collapsible) -->
+      <div class="card">
+        <button
+          @click="templatesExpanded = !templatesExpanded"
+          class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-dark-700/50 transition-colors"
+        >
+          <div class="flex items-center gap-2">
+            <Icon name="sparkles" size="sm" class="text-primary-500" />
+            <h3 class="text-sm font-medium text-gray-700 dark:text-dark-200">
+              {{ t('imageGen.templates') }}
+            </h3>
+            <span v-if="selectedTemplate" class="text-xs text-primary-500 dark:text-primary-400">
+              ({{ locale === 'zh' ? selectedTemplate.nameZh : selectedTemplate.name }})
+            </span>
+          </div>
+          <Icon
+            name="chevronDown"
+            size="sm"
+            class="text-gray-400 transition-transform"
+            :class="{ 'rotate-180': templatesExpanded }"
+          />
+        </button>
+
+        <div v-show="templatesExpanded" class="px-4 pb-4 space-y-3">
+          <!-- Category Filter -->
+          <div class="flex gap-2 flex-wrap">
+            <button
+              v-for="cat in categories"
+              :key="cat"
+              @click="selectedCategory = cat"
+              :class="[
+                'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                selectedCategory === cat
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-dark-700 dark:text-dark-300 dark:hover:bg-dark-600'
+              ]"
+            >
+              {{ getCategoryName(cat) }}
+            </button>
+          </div>
+
+          <!-- Template Grid -->
+          <div class="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+            <div
+              v-for="template in filteredTemplates"
+              :key="template.id"
+              @click="selectTemplate(template)"
+              :class="[
+                'group cursor-pointer rounded-lg border-2 p-1 transition-all',
+                selectedTemplate?.id === template.id
+                  ? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20'
+                  : 'border-transparent bg-gray-50 hover:border-primary-200 hover:bg-gray-100 dark:bg-dark-700 dark:hover:border-primary-700 dark:hover:bg-dark-600'
+              ]"
+            >
+              <div class="aspect-square overflow-hidden rounded-md bg-gray-200 dark:bg-dark-800">
+                <img
+                  :src="template.previewUrl"
+                  :alt="locale === 'zh' ? template.nameZh : template.name"
+                  class="h-full w-full object-cover transition-transform group-hover:scale-110"
+                  loading="lazy"
+                />
+              </div>
+              <div class="mt-1 text-center">
+                <span class="text-xs text-gray-600 dark:text-dark-300 line-clamp-1">
+                  {{ locale === 'zh' ? template.nameZh : template.name }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Results -->
       <div v-if="images.length > 0" class="space-y-4">
         <div class="flex items-center justify-between">
@@ -292,6 +311,7 @@ const errorMsg = ref('')
 const images = ref<Array<{ url?: string; b64_json?: string }>>([])
 const selectedTemplate = ref<ImageTemplate | null>(null)
 const selectedCategory = ref('all')
+const templatesExpanded = ref(false)
 
 // API Key selection
 const apiKeys = ref<ApiKey[]>([])
