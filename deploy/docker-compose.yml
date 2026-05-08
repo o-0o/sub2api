@@ -35,6 +35,8 @@ services:
       # gateway.forced_codex_instructions_template_file at /app/data/codex-instructions.md.tmpl
       # in config.yaml.
       # - ./codex-instructions.md.tmpl:/app/data/codex-instructions.md.tmpl:ro
+      # Frontend dist (for development with local build)
+      - ../backend/internal/web/dist:/app/internal/web/dist:ro
     environment:
       # =======================================================================
       # Auto Setup (REQUIRED for Docker deployment)
